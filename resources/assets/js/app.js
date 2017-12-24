@@ -6,7 +6,9 @@ import VueAxios from 'vue-axios';
 import { initialize } from './bootstrap'
 import App from './components/App.vue'
 import EntryList from './components/EntryList.vue'
+import ErrorMessage from './components/ErrorMessage.vue'
 import BootstrapVue from 'bootstrap-vue';
+import Vuelidate from 'vuelidate'
 import 'bootstrap/scss/bootstrap.scss';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
@@ -15,6 +17,7 @@ initialize(axios)
 Vue.use(VueRouter);
 Vue.use(VueAxios, axios);
 Vue.use(BootstrapVue);
+Vue.use(Vuelidate);
 
 const routes = [{
     name: 'Index',
@@ -27,7 +30,7 @@ const router = new VueRouter({
     routes,
 });
 
-Vue.component('example-component', require('./components/ExampleComponent.vue'));
+Vue.component('error-message', ErrorMessage);
 
 new Vue(Vue.util.extend({ 
     router 
