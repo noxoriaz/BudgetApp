@@ -87,7 +87,7 @@ class EntryController extends Controller
         $entry->date = $request->get('date');
         $entry->save();
 
-        return response()->json('Succesfully updated');
+        return response()->json($entry);
     }
 
     /**
