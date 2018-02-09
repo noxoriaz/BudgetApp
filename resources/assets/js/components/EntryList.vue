@@ -35,6 +35,9 @@
             Marppa Larppa Budget App
         </div>
         <div>
+            <div>
+                {{ categories }}
+            </div>
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -47,7 +50,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(entry, entryIndex) in entries"
+                    <tr v-for="entry in entries"
                         @click="updateModifyId(entry.id)"
                         :key="entry.id">
                         <td>
@@ -80,10 +83,10 @@
                         </td>
                         <td>
                             <div v-if="isModifiedRow(entry.id)">
-                                <input class="form-control" 
-                                    :class="{ 'is-invalid': $v.modifiedEntry.category.$invalid }"
-                                    v-model="modifiedEntry.category"
-                                    type="text">
+                                <multiselect v-model="modifiedEntry.category"
+                                            :class="{ 'is-invalid': $v.modifiedEntry.category.$invalid }"
+                                            :options="categories">
+                                </multiselect>
                                 <error-message v-if="$v.modifiedEntry.category.$invalid"
                                             :validations="$v.modifiedEntry.category">
                                 </error-message>
@@ -155,11 +158,13 @@
                             </error-message>
                         </td>
                         <td>
-                            <input class="form-control" 
-                                   :class="{ 'is-invalid': $v.newEntry.category.$error }"
-                                   type="text" 
-                                   @input="$v.newEntry.category.$touch()"
-                                   v-model="newEntry.category">
+                            <multiselect v-model="newEntry.category"
+                                        :taggable="true"
+                                        tag-placeholder="Add this new category"
+                                        @tag="addCategory"
+                                        :class="{ 'is-invalid': $v.newEntry.category.$invalid }"
+                                        :options="categories">
+                            </multiselect>
                             <error-message v-if="$v.newEntry.category.$error"
                                            :validations="$v.newEntry.category">
                             </error-message>
@@ -212,6 +217,8 @@
         between, 
         numeric,
     } from 'vuelidate/lib/validators'
+    import * as helpers from '../helpers/entryHelpers'
+
     const date = new Date()
     const validations = {
         name: {
@@ -239,6 +246,7 @@
                 entries: [],
                 previousEntry: null,
                 previousId: -1,
+                newAdditionalCategory: null,
                 newEntry: {
                     name: '',
                     description: '',
@@ -308,11 +316,17 @@
             disablePopoverModifiedEntry () {
                 return !this.$v.modifiedEntry.$error && !this.$v.modifiedEntry.$invalid
             },
+            categories () {
+                return helpers.getCategories(this.entries, this.newAdditionalCategory)
+            }
         },
         mounted () {
             this.fetchEntries()
         },
         methods: {
+            addCategory (newCategory) {
+                this.newAdditionalCategory = newCategory
+            },
             fetchEntries () {
                 this.axios
                     .get('/entries')
@@ -331,6 +345,8 @@
                         this.newEntry.category = ''
                         this.newEntry.price = ''
                         this.newEntry.date = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+                        // Clear additional category
+                        this.newAdditionalCategory = null
                     })
             },
             deleteEntry () {
