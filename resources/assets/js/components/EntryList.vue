@@ -35,9 +35,6 @@
             Marppa Larppa Budget App
         </div>
         <div>
-            <div>
-                {{ categories }}
-            </div>
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -49,162 +46,38 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr v-for="entry in entries"
-                        @click="updateModifyId(entry.id)"
-                        :key="entry.id">
-                        <td>
-                            <div v-if="isModifiedRow(entry.id)">
-                                <input class="form-control" 
-                                    :class="{ 'is-invalid': $v.modifiedEntry.name.$invalid }"
-                                    v-model="modifiedEntry.name"
-                                    type="text">
-                                <error-message v-if="$v.modifiedEntry.name.$invalid"
-                                               :validations="$v.modifiedEntry.name">
-                                </error-message>
-                            </div>
-                            <span v-if="!isModifiedRow(entry.id)">
-                                {{ entry.name }}
-                            </span>
-                        </td>
-                        <td>
-                            <div v-if="isModifiedRow(entry.id)">
-                                <input class="form-control" 
-                                    :class="{ 'is-invalid': $v.modifiedEntry.description.$invalid }"
-                                    v-model="modifiedEntry.description"
-                                    type="text">
-                                <error-message v-if="$v.modifiedEntry.description.$invalid"
-                                            :validations="$v.modifiedEntry.description">
-                                </error-message>
-                            </div>
-                            <span v-if="!isModifiedRow(entry.id)">
-                                {{ entry.description }}
-                            </span>
-                        </td>
-                        <td>
-                            <div v-if="isModifiedRow(entry.id)">
-                                <multiselect v-model="modifiedEntry.category"
-                                            :taggable="true"
-                                            :custom-label="categoryLabel"
-                                            tag-placeholder="Add this new category"
-                                            @tag="addCategory"
-                                            :class="{ 'is-invalid': $v.modifiedEntry.category.$invalid }"
-                                            :options="categories">
-                                </multiselect>
-                                <error-message v-if="$v.modifiedEntry.category.$invalid"
-                                            :validations="$v.modifiedEntry.category">
-                                </error-message>
-                            </div>
-                            <span v-if="!isModifiedRow(entry.id)">
-                                {{ entry.category }}
-                            </span>
-                        </td>
-                        <td>
-                            <div v-if="isModifiedRow(entry.id)">
-                                <input class="form-control"
-                                    :class="{ 'is-invalid': $v.modifiedEntry.price.$invalid }"
-                                    v-model="modifiedEntry.price"
-                                    type="text">
-                                <error-message v-if="$v.modifiedEntry.price.$invalid"
-                                            :validations="$v.modifiedEntry.price">
-                                </error-message>
-                            </div>
-                            <span v-if="!isModifiedRow(entry.id)">
-                                {{ entry.price }}
-                            </span>
-                        </td>
-                        <td>
-                            {{ entry.date }}
-                        </td>
-                        <td>
-                            <button class="btn btn-danger"
-                                    @click.stop="openDeleteModal(entry.id)">
-                                Delete
-                            </button>
-                            <div id="modified-entry-button">
-                                <button class="btn btn-outline-primary"
-                                        v-show="isModifiedRow(entry.id) && modifiedIsDirty"
-                                        :disabled="$v.modifiedEntry.$error || $v.modifiedEntry.$invalid"
-                                        @click.stop="updateEntry">
-                                    Update
-                                </button>
-                                <b-popover 
-                                    :target="'modified-entry-button'"
-                                    :disabled="disablePopoverModifiedEntry"
-                                    triggers="hover focus">
-                                    <template slot="title">
-                                        Following fields have errors:
-                                    </template>
-                                    {{ modifiedEntryErrorFields }}
-                                </b-popover>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input class="form-control" 
-                                   :class="{ 'is-invalid': $v.newEntry.name.$error }"
-                                   type="text" 
-                                   @input="$v.newEntry.name.$touch()"
-                                   v-model="newEntry.name">
-                            <error-message v-if="$v.newEntry.name.$error"
-                                           :validations="$v.newEntry.name">
-                            </error-message>
-                        </td>
-                        <td>
-                            <input class="form-control" 
-                                   :class="{ 'is-invalid': $v.newEntry.description.$error }"
-                                   type="text" 
-                                   @input="$v.newEntry.description.$touch()"
-                                   v-model="newEntry.description">
-                            <error-message v-if="$v.newEntry.description.$error"
-                                           :validations="$v.newEntry.description">
-                            </error-message>
-                        </td>
-                        <td>
-                            <multiselect v-model="newEntry.category"
-                                        :taggable="true"
-                                        :custom-label="categoryLabel"
-                                        tag-placeholder="Add this new category"
-                                        @tag="addCategory"
-                                        :class="{ 'is-invalid': $v.newEntry.category.$invalid }"
-                                        :options="categories">
-                            </multiselect>
-                            <error-message v-if="$v.newEntry.category.$error"
-                                           :validations="$v.newEntry.category">
-                            </error-message>
-                        </td>
-                        <td>
-                            <input class="form-control" 
-                                   :class="{ 'is-invalid': $v.newEntry.price.$error }"
-                                   type="text" 
-                                   @input="$v.newEntry.price.$touch()"
-                                   v-model="newEntry.price">
-                            <error-message v-if="$v.newEntry.price.$error"
-                                           :validations="$v.newEntry.price">
-                            </error-message>
-                        </td>
-                        <td>
-                            {{ newEntry.date }}
-                        </td>
-                        <td id="new-entry-button">
-                            <button class="btn btn-success"
-                                    :disabled="$v.newEntry.$error || $v.newEntry.$invalid"
-                                    @click="addEntry">
-                                <b-popover 
-                                    :target="'new-entry-button'"
-                                    :disabled="disablePopoverNewEntry"
-                                    triggers="hover focus">
-                                    <template slot="title">
-                                        Following fields have errors:
-                                    </template>
-                                    {{ newEntryErrorFields }}
-                                </b-popover>
-                                Add entry
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
+                <list 
+                    :entries="entries"
+                    :updateModifyId="updateModifyId"
+                    :isModifiedRow="isModifiedRow"
+                    :activeEntry="modifiedEntry"
+                    :categoryLabel="categoryLabel"
+                    :openDeleteModal="openDeleteModal"
+                    :isDirty="modifiedIsDirty"
+                    :updateEntry="updateEntry"
+                    :disablePopoverActiveEntry="disablePopoverModifiedEntry"
+                    :activeEntryErrorFields="modifiedEntryErrorFields"
+                    :categories="categories"
+                    actionText="Update"
+                    :addCategory="addCategory">
+                </list>
+                <list 
+                    :entries="[newEntry]"
+                    :updateModifyId="noop"
+                    :alwaysShowInputs="true"
+                    :isModifiedRow="true"
+                    :activeEntry="newEntry"
+                    :categoryLabel="categoryLabel"
+                    :openDeleteModal="noop"
+                    :isDirty="true"
+                    :updateEntry="addEntry"
+                    actionText="Create"
+                    :disablePopoverActiveEntry="disablePopoverNewEntry"
+                    :activeEntryErrorFields="newEntryErrorFields"
+                    :categories="categories"
+                    :addCategory="addCategory"
+                    :showModifyControls="false">
+                </list>
             </table>
         </div>
     </div>
@@ -215,37 +88,16 @@
 
 <script>
     import _ from 'lodash'
-    import { 
-        required, 
-        minLength, 
-        maxLength,
-        between, 
-        numeric,
-    } from 'vuelidate/lib/validators'
     import * as helpers from '../helpers/entryHelpers'
+    import List from './List.vue'
+    import { entryValidations as validations } from './../models/validation';
 
     const date = new Date()
-    const validations = {
-        name: {
-            required,
-            minLength: minLength(3),
-            maxLength: maxLength(20),
-        },
-        description: {
-            required,
-            maxLength: maxLength(50),
-        },
-        category: {
-            required,
-            maxLength: maxLength(20),
-        },
-        price: {
-            required,
-            numeric,
-        },
-    }
 
     export default {
+        components: {
+            list: List,
+        },
         data () {
             return {
                 entries: [],
@@ -327,6 +179,9 @@
             this.fetchCategories()
         },
         methods: {
+            noop () {
+                // Do nothing
+            },
             addCategory (newCategory) {
                 this.axios
                     .post('/categories', {
