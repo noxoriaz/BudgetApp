@@ -211,7 +211,7 @@
             addEntry () {
                 const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
                 const postBody = _.cloneDeep(this.newEntry)
-                postBody.category = postBody.category.category
+                postBody.category = postBody.category.category || postBody.category
                 this.axios
                     .post('/entries', postBody)
                     .then(res => {
@@ -243,7 +243,7 @@
                 let url = `/entries/${id}`
 
                 const postBody = _.cloneDeep(entry)
-                postBody.category = postBody.category.category
+                postBody.category = postBody.category.category || postBody.category
                 this.axios
                     .patch(url, postBody)
                     .then(res => {
@@ -301,7 +301,7 @@
             isDirty (entry, other) {
                 const res = entry.name !== other.name
                             || entry.description !== other.description
-                            || entry.category !== other.category
+                            || (entry.category.category || entry.category) !== other.category
                             || entry.price !== other.price
                             || entry.date !== other.date
                             || entry.id !== other.id
