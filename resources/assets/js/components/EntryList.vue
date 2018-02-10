@@ -84,6 +84,10 @@
                         <td>
                             <div v-if="isModifiedRow(entry.id)">
                                 <multiselect v-model="modifiedEntry.category"
+                                            :taggable="true"
+                                            :custom-label="categoryLabel"
+                                            tag-placeholder="Add this new category"
+                                            @tag="addCategory"
                                             :class="{ 'is-invalid': $v.modifiedEntry.category.$invalid }"
                                             :options="categories">
                                 </multiselect>
@@ -160,6 +164,7 @@
                         <td>
                             <multiselect v-model="newEntry.category"
                                         :taggable="true"
+                                        :custom-label="categoryLabel"
                                         tag-placeholder="Add this new category"
                                         @tag="addCategory"
                                         :class="{ 'is-invalid': $v.newEntry.category.$invalid }"
@@ -244,9 +249,9 @@
         data () {
             return {
                 entries: [],
+                categories: [],
                 previousEntry: null,
                 previousId: -1,
-                newAdditionalCategory: null,
                 newEntry: {
                     name: '',
                     description: '',
@@ -316,16 +321,23 @@
             disablePopoverModifiedEntry () {
                 return !this.$v.modifiedEntry.$error && !this.$v.modifiedEntry.$invalid
             },
-            categories () {
-                return helpers.getCategories(this.entries, this.newAdditionalCategory)
-            }
         },
         mounted () {
             this.fetchEntries()
+            this.fetchCategories()
         },
         methods: {
             addCategory (newCategory) {
-                this.newAdditionalCategory = newCategory
+                this.axios
+                    .post('/categories', {
+                        category: newCategory,
+                    })
+                    .then(res => {
+                        this.categories.push(res.data)
+                    })
+            },
+            categoryLabel ({ category }) {
+                return category
             },
             fetchEntries () {
                 this.axios
@@ -334,10 +346,19 @@
                         this.entries = res.data
                     })
             },
+            fetchCategories () {
+                this.axios
+                    .get('/categories')
+                    .then(res => {
+                        this.categories = res.data
+                    })
+            },
             addEntry () {
                 const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+                const postBody = _.cloneDeep(this.newEntry)
+                postBody.category = postBody.category.category
                 this.axios
-                    .post('/entries', this.newEntry)
+                    .post('/entries', postBody)
                     .then(res => {
                         this.entries.push(res.data)
                         this.newEntry.name = ''
@@ -345,8 +366,6 @@
                         this.newEntry.category = ''
                         this.newEntry.price = ''
                         this.newEntry.date = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-                        // Clear additional category
-                        this.newAdditionalCategory = null
                     })
             },
             deleteEntry () {
@@ -366,8 +385,11 @@
                 const entry = savePrevious ? this.previousEntry : this.modifiedEntry
                 this.previousEntry = null
                 let url = `/entries/${id}`
+
+                const postBody = _.cloneDeep(entry)
+                postBody.category = postBody.category.category
                 this.axios
-                    .patch(url, entry)
+                    .patch(url, postBody)
                     .then(res => {
                         const mutated = _(this.entries)
                             .map(x => {
@@ -423,7 +445,7 @@
             isDirty (entry, other) {
                 const res = entry.name !== other.name
                             || entry.description !== other.description
-                            || entry.category !== other.category
+                            || entry.category.category !== other.category
                             || entry.price !== other.price
                             || entry.date !== other.date
                             || entry.id !== other.id
