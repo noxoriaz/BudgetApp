@@ -54,7 +54,7 @@
                     :categoryLabel="categoryLabel"
                     :openDeleteModal="openDeleteModal"
                     :isDirty="modifiedIsDirty"
-                    :updateEntry="updateEntry"
+                    :entryAction="updateEntry"
                     :disablePopoverActiveEntry="disablePopoverModifiedEntry"
                     :activeEntryErrorFields="modifiedEntryErrorFields"
                     :categories="categories"
@@ -70,7 +70,7 @@
                     :categoryLabel="categoryLabel"
                     :openDeleteModal="noop"
                     :isDirty="true"
-                    :updateEntry="addEntry"
+                    :entryAction="addEntry"
                     actionText="Create"
                     :disablePopoverActiveEntry="disablePopoverNewEntry"
                     :activeEntryErrorFields="newEntryErrorFields"
@@ -222,6 +222,7 @@
                         this.newEntry.price = ''
                         this.newEntry.date = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
                     })
+
             },
             deleteEntry () {
                 let url = `/entries/${this.deleteId}`
@@ -300,7 +301,7 @@
             isDirty (entry, other) {
                 const res = entry.name !== other.name
                             || entry.description !== other.description
-                            || entry.category.category !== other.category
+                            || entry.category !== other.category
                             || entry.price !== other.price
                             || entry.date !== other.date
                             || entry.id !== other.id

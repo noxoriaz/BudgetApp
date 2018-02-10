@@ -7,10 +7,11 @@
         <td>
             <div v-if="showInput(entry.id)">
                 <input class="form-control" 
-                    :class="{ 'is-invalid': $v.activeEntry.name.$invalid }"
+                    :class="{ 'is-invalid': $v.activeEntry.name.$error }"
+                    @input="$v.activeEntry.name.$touch()"
                     v-model="activeEntry.name"
                     type="text">
-                <error-message v-if="$v.activeEntry.name.$invalid"
+                <error-message v-if="$v.activeEntry.name.$error"
                                 :validations="$v.activeEntry.name">
                 </error-message>
             </div>
@@ -21,10 +22,11 @@
         <td>
             <div v-if="showInput(entry.id)">
                 <input class="form-control" 
-                    :class="{ 'is-invalid': $v.activeEntry.description.$invalid }"
+                    :class="{ 'is-invalid': $v.activeEntry.description.$error }"
+                    @input="$v.activeEntry.description.$touch()"
                     v-model="activeEntry.description"
                     type="text">
-                <error-message v-if="$v.activeEntry.description.$invalid"
+                <error-message v-if="$v.activeEntry.description.$error"
                             :validations="$v.activeEntry.description">
                 </error-message>
             </div>
@@ -38,11 +40,12 @@
                             :taggable="true"
                             :custom-label="categoryLabel"
                             tag-placeholder="Add this new category"
+                            @input="$v.activeEntry.description.$touch()"
                             @tag="addCategory"
-                            :class="{ 'is-invalid': $v.activeEntry.category.$invalid }"
+                            :class="{ 'is-invalid': $v.activeEntry.category.$error }"
                             :options="categories">
                 </multiselect>
-                <error-message v-if="$v.activeEntry.category.$invalid"
+                <error-message v-if="$v.activeEntry.category.$error"
                             :validations="$v.activeEntry.category">
                 </error-message>
             </div>
@@ -53,10 +56,11 @@
         <td>
             <div v-if="showInput(entry.id)">
                 <input class="form-control"
-                    :class="{ 'is-invalid': $v.activeEntry.price.$invalid }"
+                    :class="{ 'is-invalid': $v.activeEntry.price.$error }"
+                    @input="$v.activeEntry.price.$touch()"
                     v-model="activeEntry.price"
                     type="text">
-                <error-message v-if="$v.activeEntry.price.$invalid"
+                <error-message v-if="$v.activeEntry.price.$error"
                             :validations="$v.activeEntry.price">
                 </error-message>
             </div>
@@ -76,7 +80,7 @@
                 <button class="btn btn-outline-primary"
                         v-show="showInput(entry.id) && isDirty"
                         :disabled="$v.activeEntry.$error || $v.activeEntry.$invalid"
-                        @click.stop="updateEntry">
+                        @click.stop="triggerAction">
                     {{ actionText }}
                 </button>
                 <b-popover 
@@ -115,7 +119,7 @@ export default {
         categoryLabel: Function,
         openDeleteModal: Function,
         isDirty: Boolean,
-        updateEntry: Function,
+        entryAction: Function,
         disablePopoverActiveEntry: Boolean,
         activeEntryErrorFields: String,
         categories: Array,
@@ -137,6 +141,12 @@ export default {
     },
     validations: {
         activeEntry: _.cloneDeep(validations), 
+    },
+    methods: {
+        triggerAction () {
+            this.entryAction()
+            this.$v.activeEntry.$reset()
+        },
     },
 }
 </script>
